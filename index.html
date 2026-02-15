@@ -26,11 +26,26 @@
     <div class="clicker-section" style="display:none" id="clicker-upgrade-section">
       <h1>Upgrades</h1>
       <div id="upgrade-section">
-        <button id="prestige-btn"></button>
+        <button id="prestige-btn" class="upgrade-btn"></button>
       </div>
     </div>
 
-    <div id="upgrade-svg" class="upgrade-svg">
+    <div class="clicker-section" style="display:none" id="clicker-shiny-upgrade-section">
+      <h1>Shiny Upgrades</h1>
+      <div id="shiny-upgrade-section">
+        <button id="buy-shiny-btn" class="upgrade-btn"></button>
+      </div>
+    </div>
+
+    <div class="clicker-section" style="display:none" id="gambling-section">
+      <br>
+      <button class="dn-button" onclick="doubleOrNothing('clickerCount')">Double or Nothing Saharsh</button><br>
+      <button class="dn-button" onclick="doubleOrNothing('shinyCount')">Double or Nothing Shiny Saharsh</button><br>
+      <button class="dn-button" onclick="doubleOrNothing('prestigeCount')">Double or Nothing Super Saharsh</button><br><br>
+      <div id="dn-result"></div>
+    </div>
+
+    <div id="upgrade-svg">
       <svg width="50px" height="50px" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -39,7 +54,7 @@
     </div>
   </div>
 
-  <div id="shiny-upgrade-svg" class="shiny-upgrade-svg">
+  <div id="shiny-upgrade-svg">
       <svg width="50px" height="50px" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24">
         <path stroke="#664c00" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -47,6 +62,8 @@
       </svg>
     </div>
   </div>
+
+  <div id="gambling-icon">🎰</div>
 
   <div id="click-number-texts"></div>
 

@@ -106,7 +106,7 @@ body {
     pointer-events: none;
 }
 
-.upgrade-svg {
+#upgrade-svg {
     width: 50px;
     height: 50px;
     background-color: #cccccc;
@@ -116,11 +116,11 @@ body {
     left: calc(5% + 10px);
 }
 
-.upgrade-svg:hover {
+#upgrade-svg:hover {
     background-color: #bbbbbb;
 }
 
-.shiny-upgrade-svg {
+#shiny-upgrade-svg {
     width: 50px;
     height: 50px;
     background-color: #ffbf00;
@@ -128,6 +128,35 @@ body {
     position: fixed;
     top: calc(5% + 10px);
     left: calc(5% + 70px);
+}
+
+#shiny-upgrade-svg:hover {
+    background-color: #dda500;
+}
+
+#gambling-icon {
+    width: 50px;
+    height: 50px;
+    background-color: #3a7fff;
+    border-radius: 50%;
+    position: fixed;
+    top: calc(5% + 10px);
+    right: calc(5% + 10px);
+    text-align: center;
+    font-size: 1.4em;
+    line-height: 50px;
+}
+
+.dn-button {
+    height: 50px;
+    padding: 5px;
+    background-color: hsl(24, 100%, 61%);
+    font-family: 'Consolas';
+    font-size: 1.2em;
+}
+
+#dn-result {
+    font-size: 1.4em;
 }
 
 .upgrade-btn {
@@ -138,16 +167,16 @@ body {
     font-size: 3em;
 }
 
-.upgrade-item {
+.upgrade-item, .shiny-upgrade-item {
     background-color: #eee;
 }
 
-.upgrade-item.locked {
+.upgrade-item.locked, .shiny-upgrade-item.locked {
     opacity: 0.5;
     background-color: #ddd;
 }
 
-.upgrade-item.hidden {
+.upgrade-item.hidden, .shiny-upgrade-item.hidden {
     opacity: 0.4;
     background-color: #e8e8e8;
 }
