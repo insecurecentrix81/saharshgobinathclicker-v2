@@ -1,6 +1,4 @@
-const GAMEVERSION = "dev-2.2.0"
-
-let costMulti = 1.2;
+const GAMEVERSION = "dev-2.3.2"
 
 let clicker = document.getElementById("clicker");
 let clickerCountElem = document.getElementById("clicker-count");
@@ -84,7 +82,9 @@ let upgrades = [
 ]
 
 let shinyUpgrades = [
-    new Upgrade("Shiny Boost", (n)=>("+1x SPS and Saharsh Power production"), (n)=>(10+10*n))
+    new Upgrade("Shiny Boost", (n)=>(`+50% SPS and Saharsh Power (Currently: +${n*50}%)`), (n)=>(10+10*n)),
+    new Upgrade("Saharsh Finance", (n)=>(`Decrease the cost multiplier ${getCostMulti(gameState.ownedShinyUpgrades[1])} -> ${getCostMulti(gameState.ownedShinyUpgrades[1]+1)}`), (n)=>(10+10*n)),
+    new Upgrade("Saharsh Expertise", (n)=>(`+100% Saharsh XP generation (Currently: +${n*100}%)`), (n)=>(6+3*n))
 ]
 
 function resetGameState() {
@@ -94,6 +94,7 @@ function resetGameState() {
     gameState.boughtShinies = 0;
     gameState.ownedUpgrades = new Array(upgrades.length).fill(0);
     gameState.ownedShinyUpgrades = new Array(shinyUpgrades.length).fill(0);
+    gameState.xpCount = 0;
 }
 
 let gameState = {};
@@ -125,6 +126,40 @@ function format(num) {
     }
 }
 
+function getCostMulti(upg1) {
+    return 0.2*Math.pow(0.75, upg1)+1;
+}
+
+function getXpReq(lv) {
+    return 25*(lv*lv+lv);
+}
+
+function getTotalXpReq(lv) {
+    let totalXp = 0;
+    for (let i = 0; i <= lv; i++) {
+        totalXp += getXpReq(i);
+    }
+    return totalXp;
+}
+
+function getLevel() {
+    let lv = 0;
+    let reqXp = 0;
+    while (reqXp <= gameState.xpCount) {
+        reqXp += getXpReq(lv+1);
+        lv++;
+    }
+    return lv-1;
+}
+
+function getBoostFromLevel() {
+    return 1+Math.pow(getLevel(), 1.5)/100;
+}
+
+function getUpgradeCost(i) {
+    return Math.ceil(upgrades[i].cost * getCostMulti(gameState.ownedShinyUpgrades[1]) ** gameState.ownedUpgrades[i]);
+}
+
 function getShinyCost() {
     return Math.pow(10, 3*Math.sqrt(gameState.boughtShinies+1));
 }
@@ -140,7 +175,7 @@ function updateUpgradeSection() {
     for (let i = 0; i < upgItems.length; i++) {
         let upgrade = upgrades[i];
         let num = gameState.ownedUpgrades[i];
-        let cost = Math.ceil(upgrade.cost * costMulti ** gameState.ownedUpgrades[i]);
+        let cost = getUpgradeCost(i);
         let item = upgItems[i];
 
         let isVisible = (i <= highestOwnedUpg || gameState.clickerCount >= upgrades[i - 1].cost);
@@ -196,12 +231,21 @@ function updateCountDisplay() {
     prestigeCountElem.style.display = gameState.prestigeCount > 0 ? "block" : "none";
 }
 
+function updateXpBar() {
+    let xpInLevel = gameState.xpCount-getTotalXpReq(getLevel());
+    let reqXp = getXpReq(getLevel()+1);
+
+    document.getElementById("xp-text").innerHTML = `Level ${getLevel()} - ${format(xpInLevel)}/${format(reqXp)} Saharsh XP (+${format(100*(getBoostFromLevel()-1))}%)`
+    document.getElementById("xp-progress").style.width = 500*xpInLevel/reqXp + "px";
+}
+
 function buyUpgrade(index) {
-    let cost = Math.ceil(upgrades[index].cost * costMulti ** gameState.ownedUpgrades[index]);
+    let cost = getUpgradeCost(index);
     if (gameState.clickerCount >= cost) {
         gameState.clickerCount -= cost;
         gameState.ownedUpgrades[index]++;
     }
+    gameState.xpCount += 30*Math.log10(10*upgrades[index].clicks + 6*upgrades[index].autoclicks) * (1+gameState.ownedShinyUpgrades[2]);
 }
 
 function buyShinyUpgrade(index) {
@@ -217,7 +261,7 @@ function getClickPower() {
     for (let i = 0; i < upgrades.length; i++) {
         clickPower += upgrades[i].clicks * gameState.ownedUpgrades[i];
     }
-    clickPower *= (2+gameState.prestigeCount)**2/4 * (1 + gameState.ownedShinyUpgrades[0]);
+    clickPower *= (2+gameState.prestigeCount)**2/4 * (1 + gameState.ownedShinyUpgrades[0]*0.5) * getBoostFromLevel();
     clickPower *= bonusMulti;
     return clickPower;
 }
@@ -227,7 +271,7 @@ function getAutoPerSec() {
     for (let i = 0; i < upgrades.length; i++) {
         autoPerSec += upgrades[i].autoclicks * gameState.ownedUpgrades[i];
     }
-    autoPerSec *= (2+gameState.prestigeCount)**2/4 * (1 + gameState.ownedShinyUpgrades[0]);
+    autoPerSec *= (2+gameState.prestigeCount)**2/4 * (1 + gameState.ownedShinyUpgrades[0]*0.5) * getBoostFromLevel();
     autoPerSec *= bonusMulti;
     return autoPerSec;
 }
@@ -259,6 +303,7 @@ function doubleOrNothing(currency) {
 
 function click() {
     gameState.clickerCount += getClickPower();
+    gameState.xpCount += (1+Math.log10(getClickPower())) * (1+gameState.ownedShinyUpgrades[2]);
 
     let numText = document.createElement("div");
     numText.classList.add("click-number-text");
@@ -270,6 +315,7 @@ function click() {
 
     if (Math.random() < 1/512) {
         gameState.shinyCount++;
+        gameState.xpCount += 80*(1+Math.log10(getClickPower())) * (1+gameState.ownedShinyUpgrades[2]);
 
         let numText = document.createElement("div");
         numText.classList.add("click-number-text");
@@ -372,6 +418,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
         if (document.querySelector("#shiny-upgrade-section").style.display !== "none") {
             updateShinyUpgradeSection();
         }
+        updateXpBar();
 
         for (let elem of document.querySelectorAll(".clicker-section")) {
             elem.style.display = document.getElementById(currClickerSection) === elem ? "block" : "none";
