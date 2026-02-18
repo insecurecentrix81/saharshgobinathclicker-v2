@@ -38,11 +38,19 @@
     </div>
 
     <div class="clicker-section" style="display:none" id="gambling-section">
-      <br>
-      <button class="dn-button" onclick="doubleOrNothing('clickerCount')">Double or Nothing Saharsh</button><br>
-      <button class="dn-button" onclick="doubleOrNothing('shinyCount')">Double or Nothing Shiny Saharsh</button><br>
-      <button class="dn-button" onclick="doubleOrNothing('prestigeCount')">Double or Nothing Super Saharsh</button><br><br>
+      <div id="dn-buttons">
+        <button class="dn-button" onclick="doubleOrNothing('clickerCount')">Double or Nothing Saharsh</button><br>
+        <button class="dn-button" onclick="doubleOrNothing('shinyCount')">Double or Nothing Shiny Saharsh</button><br>
+        <button class="dn-button" onclick="doubleOrNothing('prestigeCount')">Double or Nothing Super Saharsh</button><br><br>
+      </div>
       <div id="dn-result"></div>
+      <div id="slot-machine">
+        <div class="slot" id="slot-1"></div>
+        <div class="slot" id="slot-2"></div>
+        <div class="slot" id="slot-3"></div>
+      </div>
+      <button id="spin-button" onclick="spinSlotMachine()">Spin (3 Shiny Saharsh)</button>
+      <div id="slots-result"></div>
     </div>
   </div>
 

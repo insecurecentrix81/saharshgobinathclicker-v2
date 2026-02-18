@@ -101,6 +101,8 @@ button {
 .clicker-section {
     width: 100%;
     height: 100%;
+    flex-direction: column;
+    align-items: center;
 }
 
 #customCursor {
@@ -153,8 +155,12 @@ button {
     line-height: 50px;
 }
 
+#gambling-section {
+    padding-top: 25px;
+}
+
 .dn-button {
-    height: 50px;
+    height: 45px;
     padding: 5px;
     background-color: hsl(24, 100%, 61%);
     font-family: 'Consolas';
@@ -163,6 +169,37 @@ button {
 
 #dn-result {
     font-size: 1.4em;
+}
+
+#slot-machine {
+    margin-top: 25px;
+    width: 280px;
+    height: 120px;
+    background-color: #d4d4d4;
+    border: 3px solid rgb(146, 146, 146);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.slot {
+    width: 90px;
+    height: 90px;
+    margin: 15px;
+    background-color: #eeeeee;
+    align-content: center;
+}
+
+#slots-result {
+    margin-top: 10px;
+}
+
+#spin-button {
+    font-family: 'Consolas';
+    border-radius: 0;
+    font-size: 1.1em;
+    margin-top: 10px;
 }
 
 .upgrade-btn {

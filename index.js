@@ -82,7 +82,7 @@ let upgrades = [
 ]
 
 let shinyUpgrades = [
-    new Upgrade("Shiny Boost", (n)=>(`+50% SPS and Saharsh Power (Currently: +${n*50}%)`), (n)=>(10+10*n)),
+    new Upgrade("Shiny Saharsh Boost", (n)=>(`+50% SPS and Saharsh Power (Currently: +${n*50}%)`), (n)=>(10+10*n)),
     new Upgrade("Saharsh Finance", (n)=>(`Decrease the cost multiplier ${getCostMulti(gameState.ownedShinyUpgrades[1])} -> ${getCostMulti(gameState.ownedShinyUpgrades[1]+1)}`), (n)=>(10+10*n)),
     new Upgrade("Saharsh Expertise", (n)=>(`+100% Saharsh XP generation (Currently: +${n*100}%)`), (n)=>(6+3*n))
 ]
@@ -101,8 +101,8 @@ let gameState = {};
 resetGameState();
 
 let bonusMulti = 1;
-let pendingPrestige = 0;
 let dnStreak = 0;
+let currentSlotEffect = 0;
 
 if (localStorage.getItem("gameState-v" + GAMEVERSION)) {
     try {
@@ -197,7 +197,7 @@ function updateUpgradeSection() {
     }
 
     if ((gameState.prestigeCount > 0 || gameState.clickerCount >= 1e27)) {
-        prestigeBtn.innerHTML = `<pre class="upgrade-text"><strong>Saharsh Prestige</strong> <p class="small">Ascend to a higher Saharsh (+${pendingPrestige} Super Saharsh)</p></pre>`;
+        prestigeBtn.innerHTML = `<pre class="upgrade-text"><strong>Saharsh Prestige</strong> <p class="small">Ascend to a higher Saharsh (+${getPendingPrestige()} Super Saharsh)</p></pre>`;
     }
 }
 
@@ -243,9 +243,11 @@ function buyUpgrade(index) {
     let cost = getUpgradeCost(index);
     if (gameState.clickerCount >= cost) {
         gameState.clickerCount -= cost;
+        if (gameState.ownedUpgrades[index] == 0) {
+            gameState.xpCount += 30*Math.log10(10*upgrades[index].clicks + 6*upgrades[index].autoclicks) * (1+gameState.ownedShinyUpgrades[2]) * getSlotsXpBoost();
+        }
         gameState.ownedUpgrades[index]++;
     }
-    gameState.xpCount += 30*Math.log10(10*upgrades[index].clicks + 6*upgrades[index].autoclicks) * (1+gameState.ownedShinyUpgrades[2]);
 }
 
 function buyShinyUpgrade(index) {
@@ -262,6 +264,7 @@ function getClickPower() {
         clickPower += upgrades[i].clicks * gameState.ownedUpgrades[i];
     }
     clickPower *= (2+gameState.prestigeCount)**2/4 * (1 + gameState.ownedShinyUpgrades[0]*0.5) * getBoostFromLevel();
+    clickPower *= getSlotsProdBoost();
     clickPower *= bonusMulti;
     return clickPower;
 }
@@ -272,6 +275,7 @@ function getAutoPerSec() {
         autoPerSec += upgrades[i].autoclicks * gameState.ownedUpgrades[i];
     }
     autoPerSec *= (2+gameState.prestigeCount)**2/4 * (1 + gameState.ownedShinyUpgrades[0]*0.5) * getBoostFromLevel();
+    autoPerSec *= getSlotsProdBoost();
     autoPerSec *= bonusMulti;
     return autoPerSec;
 }
@@ -301,9 +305,94 @@ function doubleOrNothing(currency) {
     }
 }
 
+function spinSlotMachine() {
+    if (gameState.shinyCount < 3) return;
+    gameState.shinyCount -= 3;
+
+    for (let slot of document.getElementsByClassName("slot")) {
+        slot.innerHTML = "";
+    }
+    let resElem = document.getElementById("slots-result");
+    currentSlotEffect = 0;
+    resElem.innerHTML = "";
+
+    let slotInnerHtmls = ["💎", "🪙", "🍒", 
+        '<img style="width:30px; height:30px" src="https://asset-cdn.schoology.com/system/files/imagecache/profile_big/pictures/picture-c0b09cdead19788fb0f8be0d53b5c572_68c34cd700b90.jpg">'
+    ];
+    let slots = [-1, -1, -1];
+    setTimeout(()=>{
+        let rand = Math.floor(Math.random()*4);
+        document.getElementById("slot-1").innerHTML = slotInnerHtmls[rand];
+        slots[0] = rand;
+    }, 300)
+    setTimeout(()=>{
+        let rand = Math.floor(Math.random()*4);
+        document.getElementById("slot-2").innerHTML = slotInnerHtmls[rand];
+        slots[1] = rand;
+    }, 600)
+    setTimeout(()=>{
+        let rand = Math.floor(Math.random()*4);
+        document.getElementById("slot-3").innerHTML = slotInnerHtmls[rand];
+        slots[2] = rand;
+    }, 900)
+    setTimeout(()=>{
+        if (slots.filter((e)=>(e == 0)).length === 3) {
+            resElem.innerHTML = "5x Saharsh production for 2 minutes!";
+            currentSlotEffect = 1;
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 120000);
+        } else if (slots.filter((e)=>(e == 0)).length === 2) {
+            resElem.innerHTML = "2x Saharsh production for 1 minute!";
+            currentSlotEffect = 2;
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 60000);
+        } else if (slots.filter((e)=>(e == 1)).length === 3) {
+            resElem.innerHTML = "25x Shiny Saharsh chance for 2 minutes!";
+            currentSlotEffect = 3;
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 120000);
+        } else if (slots.filter((e)=>(e == 1)).length === 2) {
+            resElem.innerHTML = "5x Shiny Saharsh chance for 1 minute!";
+            currentSlotEffect = 4;
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 60000);
+        } else if (slots.filter((e)=>(e == 2)).length === 3) {
+            resElem.innerHTML = "9x Saharsh XP for 2 minutes!";
+            currentSlotEffect = 5;
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 120000);
+        } else if (slots.filter((e)=>(e == 2)).length === 2) {
+            resElem.innerHTML = "3x Saharsh XP for 1 minute!";
+            currentSlotEffect = 6;
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 60000);
+        } else if (slots.filter((e)=>(e == 3)).length === 3) {
+            resElem.innerHTML = "SAHARSH JACKPOT! 20x Saharsh Production & Saharsh XP for 2 minutes!";
+            currentSlotEffect = 7;
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 120000);
+        } else if (slots.filter((e)=>(e == 3)).length === 2) {
+            resElem.innerHTML = "3x Saharsh Production & Saharsh XP for 1 minute!";
+            currentSlotEffect = 8;
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 60000);
+        } else {
+            resElem.innerHTML = "Nothing, please play again!";
+        }
+    }, 1200);
+}
+
+function getSlotsProdBoost() {
+    if (currentSlotEffect === 1) return 5;
+    if (currentSlotEffect === 2) return 2;
+    if (currentSlotEffect === 7) return 20;
+    if (currentSlotEffect === 8) return 3;
+    return 1;
+}
+
+function getSlotsXpBoost() {
+    if (currentSlotEffect === 5) return 9;
+    if (currentSlotEffect === 6) return 3;
+    if (currentSlotEffect === 7) return 20;
+    if (currentSlotEffect === 8) return 3;
+    return 1;
+}
+
 function click() {
     gameState.clickerCount += getClickPower();
-    gameState.xpCount += (1+Math.log10(getClickPower())) * (1+gameState.ownedShinyUpgrades[2]);
+    gameState.xpCount += (1+Math.log10(getClickPower())) * (1+gameState.ownedShinyUpgrades[2]) * getSlotsXpBoost();
 
     let numText = document.createElement("div");
     numText.classList.add("click-number-text");
@@ -313,9 +402,9 @@ function click() {
     numText.addEventListener('animationend', numText.remove);
     document.querySelector("#click-number-texts").appendChild(numText);
 
-    if (Math.random() < 1/512) {
+    if (Math.random() < (currentSlotEffect == 3 ? 25 : (currentSlotEffect == 4 ? 5 : 1))/512) {
         gameState.shinyCount++;
-        gameState.xpCount += 80*(1+Math.log10(getClickPower())) * (1+gameState.ownedShinyUpgrades[2]);
+        gameState.xpCount += 80*(1+Math.log10(getClickPower())) * (1+gameState.ownedShinyUpgrades[2]) * getSlotsXpBoost();
 
         let numText = document.createElement("div");
         numText.classList.add("click-number-text");
@@ -329,9 +418,13 @@ function click() {
     }
 }
 
+function getPendingPrestige() {
+    return gameState.clickerCount < 1e27 ? 0 : (Math.log10(gameState.clickerCount) - 26) ** 2;
+}
+
 function doPrestige() {
-    if (pendingPrestige >= 1) {
-        gameState.prestigeCount += pendingPrestige;
+    if (getPendingPrestige() >= 1) {
+        gameState.prestigeCount += getPendingPrestige();
         gameState.ownedUpgrades = new Array(upgrades.length).fill(0);
         gameState.clickerCount = 0;
     }
@@ -421,11 +514,10 @@ document.addEventListener("DOMContentLoaded", (e) => {
         updateXpBar();
 
         for (let elem of document.querySelectorAll(".clicker-section")) {
-            elem.style.display = document.getElementById(currClickerSection) === elem ? "block" : "none";
+            elem.style.display = document.getElementById(currClickerSection) === elem ? "flex" : "none";
         }
 
         gameState.clickerCount += getAutoPerSec()/60;
-
-        pendingPrestige = gameState.clickerCount < 1e27 ? 0 : (Math.log10(gameState.clickerCount) - 26) ** 2;
+        gameState.xpCount += (Math.log10(1+getAutoPerSec()))/60 * (1+gameState.ownedShinyUpgrades[2]) * getSlotsXpBoost();
     }, 16);
 })
