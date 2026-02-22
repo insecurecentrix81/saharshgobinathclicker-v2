@@ -7,11 +7,13 @@
 </head>
 
 <body>
-  <div class="game-container">
-    <h1>Saharsh Clicker 2</h1>
-    <div id="clicker-count">0x Saharsh</div>
-    <div id="shiny-count" style="display:none">0x Shiny Saharsh</div>
-    <div id="prestige-count" style="display:none">0x Super Saharsh</div>
+  <div id="game-container">
+    <div id="info-container">
+      <h1>Saharsh Clicker 2</h1>
+      <div id="clicker-count">0x Saharsh</div>
+      <div id="shiny-count" style="display:none">0x Shiny Saharsh</div>
+      <div id="prestige-count" style="display:none">0x Super Saharsh</div>
+    </div>
 
     <div class="clicker-section" style="display:block" id="clicker-game-section">
       <!-- I see you are trying to hack this game. You can't just change this. Run gameState.clickerCount = 1e100-->
@@ -49,7 +51,7 @@
         <div class="slot" id="slot-2"></div>
         <div class="slot" id="slot-3"></div>
       </div>
-      <button id="spin-button" onclick="spinSlotMachine()">Spin (3 Shiny Saharsh)</button>
+      <button id="spin-button" onclick="spinSlotMachine()">Spin (2 Shiny Saharsh)</button>
       <div id="slots-result"></div>
     </div>
   </div>
@@ -72,6 +74,7 @@
   </div>
 
   <div id="gambling-icon">🎰</div>
+  <button id="difficulty-button" onclick="gameState.difficulty=(gameState.difficulty+1)%3">Difficulty: Normal</button>
 
   <div id="xp-bar">
     <div id="xp-progress"></div>

@@ -88,7 +88,7 @@ button {
     animation: rgb-color 3s infinite;
 }
 
-.game-container {
+#game-container {
     position: fixed;
     top: 5%;
     left: 5%;
@@ -96,6 +96,11 @@ button {
     height: 90%;
     background-color: #ffffff;
     text-align: center;
+    transition: background-color 0.5s;
+}
+
+#info-container {
+    transition: color 0.5s;
 }
 
 .clicker-section {
@@ -153,6 +158,18 @@ button {
     text-align: center;
     font-size: 1.4em;
     line-height: 50px;
+}
+
+#difficulty-button {
+    height: 40px;
+    position: fixed;
+    top: calc(5% + 15px);
+    right: calc(5% + 80px);
+    font-family: 'Consolas';
+    font-size: 1.1em;
+    border-radius: 0;
+    background-color: #202020;
+    color: #ffffff;
 }
 
 #gambling-section {
