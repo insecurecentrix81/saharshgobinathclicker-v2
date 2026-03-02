@@ -1,4 +1,4 @@
-const GAMEVERSION = "dev-2.4.2"
+const GAMEVERSION = "dev-2.5.0"
 
 let clicker = document.getElementById("clicker");
 let clickerCountElem = document.getElementById("clicker-count");
@@ -9,6 +9,9 @@ let prestigeCountElem = document.querySelector("#prestige-count");
 let buyShinyBtn = document.querySelector("#buy-shiny-btn");
 let shinyCountElem = document.querySelector("#shiny-count");
 let currClickerSection;
+
+let sData;
+fetch("2025-09-14.json").then(r => r.json()).then(d => {sData = d.students.filter(s => s.id > 138000000 && s.school.includes("Cupertino High School") && s.image[0] != "https://asset-cdn.schoology.com/sites/all/themes/schoology_theme/images/user-default.svg")})
 
 class Upgrade {
     constructor(title, subtitleFunc, costFunc) {
@@ -92,6 +95,9 @@ let shinyUpgrades = [
 ]
 
 function resetGameState() {
+    gameState.name = "Saharsh Gobinath";
+    gameState.fName = "Saharsh";
+    gameState.img = "https://asset-cdn.schoology.com/system/files/imagecache/profile_big/pictures/picture-c0b09cdead19788fb0f8be0d53b5c572_68c34cd700b90.jpg";
     gameState.clickerCount = 0;
     gameState.prestigeCount = 0;
     gameState.shinyCount = 0;
@@ -209,7 +215,7 @@ function updateUpgradeSection() {
         let isVisible = (i <= highestOwnedUpg || gameState.clickerCount >= getUpgradeCost(i-1) || gameState.clickerCount >= getUpgradeCost(i));
 
         if (!isVisible) {
-            item.innerHTML = `<pre class="upgrade-text"><strong>???</strong> <i class="small">(??? Saharsh)</i></pre>`;
+            item.innerHTML = `<pre class="upgrade-text"><strong>???</strong> <i class="small">(??? ${gameState.fName})</i></pre>`;
             item.classList.add("hidden");
         } else {
             item.classList.remove("hidden");
@@ -220,24 +226,28 @@ function updateUpgradeSection() {
             }
             
             let desc = upgrade.subtitle ? upgrade.subtitle.replace(/\n/g, "<br>") : "";
+            
             if (gameState.difficulty === 1 && i === 0) {
                 desc += "<i>\n(All SPS is multiplied by 2 in Hard Mode)</i>";
             }
             if (gameState.difficulty === 2 && i === 0) {
                 desc += "<i>\n(All SPS is multiplied by 3 in Insane Mode)</i>";
             }
+
+            desc = desc.replaceAll("Saharsh", gameState.fName);
+            desc = desc.replaceAll("SPS", gameState.fName[0] + "PS");
             
-            item.innerHTML = `<pre class="upgrade-text"><strong>${upgrade.title}</strong> <i class="small">(${format(cost)} Saharsh)</i> <i class="small">(owned: ${num})</i>${desc ? "<p class=\"small\">" + desc + "</p>" : ""}</pre>`;
+            item.innerHTML = `<pre class="upgrade-text"><strong>${upgrade.title}</strong> <i class="small">(${format(cost)} ${gameState.fName})</i> <i class="small">(owned: ${num})</i>${desc ? "<p class=\"small\">" + desc + "</p>" : ""}</pre>`;
         }
     }
 
     if ((gameState.prestigeCount > 0 || gameState.clickerCount >= 1e26 || gameState.ownedUpgrades.at(-1) > 0)) {
-        prestigeBtn.innerHTML = `<pre class="upgrade-text"><strong>Saharsh Prestige</strong> <p class="small">Ascend to a higher Saharsh (+${formatHighPrec(getPendingPrestige())} Super Saharsh)</p></pre>`;
+        prestigeBtn.innerHTML = `<pre class="upgrade-text"><strong>${gameState.fName} Prestige</strong> <p class="small">Ascend to a higher ${gameState.fName} (+${formatHighPrec(getPendingPrestige())} Super ${gameState.fName})</p></pre>`;
     }
 }
 
 function updateShinyUpgradeSection() {
-    buyShinyBtn.innerHTML = `<pre class="upgrade-text"><strong>Buy a Shiny Saharsh</strong> <p class="small">${format(getShinyCost())} Saharsh</p></pre>`
+    buyShinyBtn.innerHTML = `<pre class="upgrade-text"><strong>Buy a Shiny ${gameState.fName}</strong> <p class="small">${format(getShinyCost())} ${gameState.fName}</p></pre>`
 
     let upgItems = document.querySelectorAll(".shiny-upgrade-item");
     for (let i = 0; i < upgItems.length; i++) {
@@ -254,15 +264,19 @@ function updateShinyUpgradeSection() {
         
         let sub = upgrade.subtitleFunc(num);
         let desc = sub ? sub.replace(/\n/g, "<br>") : "";
-        item.innerHTML = `<pre class="upgrade-text"><strong>${upgrade.title}</strong> <i class="small">(${format(cost)} Shiny Saharsh)</i> <i class="small">(owned: ${num})</i>${desc ? "<p class=\"small\">" + desc + "</p>" : ""}</pre>`;
+        desc = desc.replaceAll("Saharsh", gameState.fName);
+        let title = upgrade.title;
+        title = title.replaceAll("Saharsh", gameState.fName);
+
+        item.innerHTML = `<pre class="upgrade-text"><strong>${title}</strong> <i class="small">(${format(cost)} Shiny ${gameState.fName})</i> <i class="small">(owned: ${num})</i>${desc ? "<p class=\"small\">" + desc + "</p>" : ""}</pre>`;
     }
 }
 
 function updateCountDisplay() {
-    clickerCountElem.innerHTML = `${format(gameState.clickerCount)}x Saharsh <i class="small">(${format(getAutoPerSec())} SPS)</i>`;
-    shinyCountElem.innerHTML = `${format(gameState.shinyCount)}x Shiny Saharsh`;
+    clickerCountElem.innerHTML = `${format(gameState.clickerCount)}x ${gameState.fName} <i class="small">(${format(getAutoPerSec())} ${gameState.fName[0]}PS)</i>`;
+    shinyCountElem.innerHTML = `${format(gameState.shinyCount)}x Shiny ${gameState.fName}`;
     shinyCountElem.style.display = gameState.shinyCount > 0 ? "block" : "none";
-    prestigeCountElem.innerHTML = `${format(gameState.prestigeCount)}x Super Saharsh <span class="small">(${format((2+gameState.prestigeCount)**2/4)}x Saharsh Production)</span>`
+    prestigeCountElem.innerHTML = `${format(gameState.prestigeCount)}x Super ${gameState.fName} <span class="small">(${format((2+gameState.prestigeCount)**2/4)}x ${gameState.fName} Production)</span>`
     prestigeCountElem.style.display = gameState.prestigeCount > 0 ? "block" : "none";
 }
 
@@ -270,7 +284,7 @@ function updateXpBar() {
     let xpInLevel = gameState.xpCount-getTotalXpReq(getLevel());
     let reqXp = getXpReq(getLevel()+1);
 
-    document.getElementById("xp-text").innerHTML = `Level ${getLevel()} - ${format(xpInLevel)}/${format(reqXp)} Saharsh XP (+${format(100*(getBoostFromLevel()-1))}%)`
+    document.getElementById("xp-text").innerHTML = `Level ${getLevel()} - ${format(xpInLevel)}/${format(reqXp)} ${gameState.fName} XP (+${format(100*(getBoostFromLevel()-1))}%)`
     document.getElementById("xp-progress").style.width = 500*xpInLevel/reqXp + "px";
 }
 
@@ -394,35 +408,35 @@ function spinSlotMachine() {
     }, 900)
     setTimeout(()=>{
         if (slots.filter((e)=>(e == 0)).length === 3) {
-            resElem.innerHTML = "5x Saharsh production for 2 minutes!";
+            resElem.innerHTML = `5x ${gameState.fName} production for 2 minutes!`;
             currentSlotEffect = 1;
-            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 120000);
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML=``;}, 120000);
         } else if (slots.filter((e)=>(e == 0)).length === 2) {
-            resElem.innerHTML = "2x Saharsh production for 1 minute!";
+            resElem.innerHTML = `2x ${gameState.fName} production for 1 minute!`;
             currentSlotEffect = 2;
-            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 60000);
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML=``;}, 60000);
         } else if (slots.filter((e)=>(e == 1)).length === 3) {
-            resElem.innerHTML = "25x Shiny Saharsh chance for 2 minutes!";
+            resElem.innerHTML = `25x Shiny ${gameState.fName} chance for 2 minutes!`;
             currentSlotEffect = 3;
-            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 120000);
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML=``;}, 120000);
         } else if (slots.filter((e)=>(e == 1)).length === 2) {
-            resElem.innerHTML = "5x Shiny Saharsh chance for 1 minute!";
+            resElem.innerHTML = `5x Shiny ${gameState.fName} chance for 1 minute!`;
             currentSlotEffect = 4;
-            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 60000);
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML=``;}, 60000);
         } else if (slots.filter((e)=>(e == 2)).length === 3) {
-            resElem.innerHTML = "9x Saharsh XP for 2 minutes!";
+            resElem.innerHTML = `9x ${gameState.fName} XP for 2 minutes!`;
             currentSlotEffect = 5;
-            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 120000);
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML=``;}, 120000);
         } else if (slots.filter((e)=>(e == 2)).length === 2) {
-            resElem.innerHTML = "3x Saharsh XP for 1 minute!";
+            resElem.innerHTML = `3x ${gameState.fName} XP for 1 minute!`;
             currentSlotEffect = 6;
-            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 60000);
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML=``;}, 60000);
         } else if (slots.filter((e)=>(e == 3)).length === 3) {
-            resElem.innerHTML = "SAHARSH JACKPOT! 20x Saharsh Production & Saharsh XP for 2 minutes!";
+            resElem.innerHTML = `${gameState.fName.toUpperCase()} JACKPOT! 20x ${gameState.fName} Production & ${gameState.fName} XP for 2 minutes!`;
             currentSlotEffect = 7;
-            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 120000);
+            setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML=``;}, 120000);
         } else if (slots.filter((e)=>(e == 3)).length === 2) {
-            resElem.innerHTML = "3x Saharsh Production & Saharsh XP for 1 minute!";
+            resElem.innerHTML = `3x ${gameState.fName} Production & ${gameState.fName} XP for 1 minute!`;
             currentSlotEffect = 8;
             setTimeout(()=>{currentSlotEffect = 0; resElem.innerHTML="";}, 60000);
         } else {
@@ -445,6 +459,11 @@ function getSlotsXpBoost() {
     if (currentSlotEffect === 7) return 20;
     if (currentSlotEffect === 8) return 3;
     return 1;
+}
+
+function changeDiff() {
+    gameState.difficulty = (gameState.difficulty+1) % 3;
+    resetGameState();
 }
 
 function click() {
@@ -491,6 +510,27 @@ function doPrestige() {
     }
 }
 
+function changeName(n) {
+    for (let s of sData) {
+        if (s.name == n) {
+            sName = n;
+            gameState.fName = n.substring(0, n.indexOf(" "));
+            gameState.img = s.image[0];
+
+            return;
+        }
+    }
+}
+
+document.addEventListener('keydown', (e)=>{
+    if (e.key === "Shift") {
+        let nName = prompt("Change name:");
+        if (nName != null) {
+            changeName(nName);
+        }
+    }
+});
+
 document.addEventListener("DOMContentLoaded", (e) => {
     updateUpgradeSection();
     currClickerSection = "clicker-game-section";
@@ -499,7 +539,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
         let upgItem = document.createElement("div");
         upgItem.classList.add("upgrade-btn");
         upgItem.classList.add("upgrade-item");
-        upgItem.innerHTML = `<pre class="upgrade-text"><strong>???</strong> <i class="small">(??? Saharsh)</i></pre>`;
+        upgItem.innerHTML = `<pre class="upgrade-text"><strong>???</strong> <i class="small">(??? ${gameState.fName})</i></pre>`;
         upgradeSection.appendChild(upgItem);
     }
 
@@ -565,6 +605,11 @@ document.addEventListener("DOMContentLoaded", (e) => {
     }, 1000);
 
     setInterval(() => {
+        document.getElementById("game-title").innerHTML = gameState.fName + " Clicker 2";
+        document.getElementById("clicker-image").src = gameState.img;
+        document.getElementById("customCursor").src = gameState.img;
+        document.body.style.backgroundImage = "url('" + gameState.img + "')";
+
         updateCountDisplay();
         if (document.querySelector("#clicker-upgrade-section").style.display !== "none") {
             updateUpgradeSection();
@@ -590,6 +635,12 @@ document.addEventListener("DOMContentLoaded", (e) => {
             document.getElementById("game-container").style.backgroundColor = "#000000";
             document.getElementById("info-container").style.color = "#ffadc3";
         }
+
+        for (let btn of document.getElementsByClassName("cname")) {
+            btn.innerHTML = gameState.fName;
+        }
+        
+        if (gameState.difficulty == undefined) {gameState.difficulty = 0;}
 
         gameState.clickerCount += getAutoPerSec()/60;
         gameState.xpCount += (Math.log10(1+getAutoPerSec()))/60 * (1+gameState.ownedShinyUpgrades[2]) * getSlotsXpBoost();

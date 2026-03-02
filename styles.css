@@ -1,6 +1,5 @@
 body {
     font-family: 'Consolas';
-    background-image: url("https://asset-cdn.schoology.com/system/files/imagecache/profile_big/pictures/picture-c0b09cdead19788fb0f8be0d53b5c572_68c34cd700b90.jpg");
     background-size: 50px;
     cursor: none;
 }
@@ -39,7 +38,7 @@ button {
     transition: 0.1s;
 }
 
-.clicker-image {
+#clicker-image {
     width: 250px;
     position: relative;
     top: 50%;
