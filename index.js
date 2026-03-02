@@ -106,7 +106,6 @@ function resetGameState() {
     gameState.ownedShinyUpgrades = new Array(shinyUpgrades.length).fill(0);
     gameState.xpCount = 0;
     gameState.startTime = Date.now();
-    gameState.difficulty = 0;
 }
 
 let gameState = {};
